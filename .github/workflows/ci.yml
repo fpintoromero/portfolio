@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install pytest
+      - name: Unit tests
+        run: |
+          pytest -q projects/gcp-weather-pipeline/tests
+          pytest -q projects/bigquery-cost-optimization/tests
+      - name: Syntax check (function, DAG, scripts)
+        run: |
+          python -m py_compile projects/gcp-weather-pipeline/ingestion/cloud_function/*.py
+          python -m py_compile projects/gcp-weather-pipeline/orchestration/dags/*.py
+          python -m py_compile projects/bigquery-cost-optimization/scripts/*.py
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/gcp-weather-pipeline/infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false
+      - run: terraform validate

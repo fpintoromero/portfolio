@@ -1,0 +1,5 @@
+project_id     = "my-portfolio-project"
+region         = "us-central1"
+bq_location    = "US"
+env            = "dev"
+invoker_member = "user:me@example.com"

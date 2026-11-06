@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.env
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.build/
+.terraform.lock.hcl
+
+# dbt
+target/
+dbt_packages/
+logs/
+profiles.yml

@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: weather_raw
+    database: "{{ env_var('GCP_PROJECT') }}"
+    schema: weather_raw
+    tables:
+      - name: hourly_observations
+        description: Append-only landing table loaded from GCS (one row per city and hour, may contain re-ingested duplicates).
+        loaded_at_field: ingested_at
+        freshness:
+          warn_after: {count: 26, period: hour}
+          error_after: {count: 50, period: hour}

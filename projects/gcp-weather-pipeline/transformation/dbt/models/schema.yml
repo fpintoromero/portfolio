@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_weather_hourly
+    description: Deduplicated hourly observations (latest ingestion wins).
+    columns:
+      - name: city
+        tests: [not_null]
+      - name: observed_at
+        tests: [not_null]
+      - name: temperature_c
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -40
+              max_value: 50
+      - name: relative_humidity_pct
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [city, observed_at]
+
+  - name: fct_weather_daily
+    description: Daily weather KPIs per city, partitioned by observed_date and clustered by city.
+    columns:
+      - name: observed_date
+        tests: [not_null]
+      - name: hours_observed
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 24
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [observed_date, city]
